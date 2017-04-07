@@ -10,22 +10,32 @@ app.use(koaBody)
 
 router.post('/charge', async (ctx) => {
   const {body} = ctx.request
+  let customer
+  if (!body.customerId) {
+    customer = await stripe.customers.create({
+      email: body.stripeEmail,
+      source: body.stripeToken
+    })
+  } else {
+    customer = {
+      id: body.customerId
+    }
+  }
 
-  console.log(body)
-  // => POST body
-  const customer = await stripe.customers.create({
-    email: body.stripeEmail,
-    source: body.stripeToken
-  })
-
-  const chargeRes = await stripe.charges.create({
+  const chargeResult = await stripe.charges.create({
     amount: body.amount,
     description: 'bounty land',
     currency: 'czk',
     customer: customer.id
   })
+  const response = {
+    chargeResult
+  }
+  if (!body.customerId) {
+    response.customer = customer
+  }
 
-  ctx.body = JSON.stringify(chargeRes)
+  ctx.body = JSON.stringify(response)
 })
 
 app.use(router.routes())
