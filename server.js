@@ -5,8 +5,18 @@ const Koa = require('koa')
 const app = new Koa()
 const router = require('koa-router')()
 const koaBody = require('koa-body')()
-const cors = require('koa-cors')
+const cors = require('kcors')
 app.use(cors())
+app.use(async (ctx, next) => {
+  try {
+    await next()
+  } catch (err) {
+    ctx.status = err.status || 500
+    ctx.body = err
+    ctx.app.emit('error', err, ctx)
+  }
+})
+
 app.use(koaBody)
 
 router.post('/charge', async (ctx) => {
