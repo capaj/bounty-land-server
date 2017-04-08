@@ -5,7 +5,8 @@ const Koa = require('koa')
 const app = new Koa()
 const router = require('koa-router')()
 const koaBody = require('koa-body')()
-
+const cors = require('koa-cors')
+app.use(cors())
 app.use(koaBody)
 
 router.post('/charge', async (ctx) => {
